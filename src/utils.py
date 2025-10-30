@@ -1,22 +1,33 @@
 import torch
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 
-def download_and_load_model(model_name="t5-small", device="cuda" if torch.cuda.is_available() else "cpu"):
+def download_and_load_model(model_name="t5-small", device =torch.device("mps") ):
     """
-    Downloads and loads the T5-small model and tokenizer. 
-    The model is moved to the appropriate device.
+    Downloads and loads a T5 model and its tokenizer.
     
     Args:
-        model_name (str): The name of the pre-trained model to load.
-        device (str): The device to load the model on, 'cuda' or 'cpu'.
-    
+        model_name (str): Pretrained T5 model name.
+        
     Returns:
-        model (PreTrainedModel): The loaded T5-small model.
-        tokenizer (PreTrainedTokenizer): The corresponding tokenizer.
+        model: Loaded T5 model
+        tokenizer: Corresponding tokenizer
+        device: torch.device used
     """
+
     print(f"Downloading and loading the {model_name} model...")
-    tokenizer = T5Tokenizer.from_pretrained(model_name)
-    model = T5ForConditionalGeneration.from_pretrained(model_name)
-    model.to(device)
-    
+
+    try:
+        tokenizer = T5Tokenizer.from_pretrained(model_name)
+    except Exception as e:
+        print("Error loading tokenizer:", e)
+        raise
+
+    try:
+        model = T5ForConditionalGeneration.from_pretrained(model_name)
+        model.to(device)
+    except Exception as e:
+        print("Error loading model:", e)
+        raise
+
+    print("Model and tokenizer loaded successfully.")
     return model, tokenizer, device
